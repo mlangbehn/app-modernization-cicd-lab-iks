@@ -29,7 +29,7 @@ If you haven't already:
 
 ###  Step 1: Set up the CI/CD pipeline
 
-In this section we will be connecting our cloned Git repo of [this app](https://github.com/djccarew/app-modernization-plants-by-websphere-jee6)  to set up a Continuous Integration/Continuous Deployment pipeline built with Jenkins. This pipeline contains 4main  steps as follows:
+In this section we will be connecting our cloned Git repo of [this app](https://github.com/IBMAppModernization/app-modernization-plants-by-websphere-jee6)  to set up a Continuous Integration/Continuous Deployment pipeline built with Jenkins. This pipeline contains 4main  steps as follows:
 
   | Stage                         | Purpose                                                                        |
   | ----------------------------- | ------------------------------------------------------------------------------ |
