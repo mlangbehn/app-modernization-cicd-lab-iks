@@ -15,7 +15,7 @@ If you haven't already:
 
 1. Complete *Part 1 -  Working with Helm*  by following the instructions [here](https://github.com/IBMAppModernization/app-modernization-helm-lab-iks)
 
-2. If following this lab as part of an IBM instructor led workshop, please follow these instructions to setup your workshop environment: https://gist.github.com/jzaccone/0cdc321e5dc8adb0dca98ca861284c01
+2. If following this lab as part of an IBM instructor led workshop, please follow these instructions to setup your workshop environment: https://gist.github.com/djccarew/83da0dca62dbc4951efddbe1f49105ca
 
 3. Initialize Helm client
 ```
