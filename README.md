@@ -12,17 +12,19 @@ In this lab you will  be connecting your Git repository with the Plants by WebSp
 
 If you haven't already:
 
-1. Complete the previous section, * Working with Helm*  by following the instructions [here](https://github.com/IBMAppModernization/app-modernization-helm-lab-iks)
+1. Complete the previous section, *Working with Helm*,  by following the instructions [here](https://github.com/odrodrig/app-modernization-helm-lab-iks)
 
-2. Initialize Helm client
-   ```
-   helm init --client-only
-   ```
 
 3. Go to the folder where you cloned the Plants By WebSphere  app in the previous lab
    ```
    cd app-modernization-plants-by-websphere-jee6
    ```   
+
+4. Next, we need to add permissions for our deployment service account. Run the following command:
+```
+kubectl apply -f rbac-config.yaml
+```
+   
 ### Step 1: Installing Jenkins
 In this section we will install Jenkins onto our Kubernetes cluster on IBM Cloud. First we will create a persistent volume necessary for storing Jenkins data and then we will use Helm to deploy jenkins.
 
@@ -88,7 +90,7 @@ In this section we will configure our Jenkins instance in preparation of running
 
 In order for Jenkins to be able to launch pods for running jobs, you have to configure the service account credentials.
 
-1. Navigate to Manage Jenkins > Configure System and then scroll down to the Cloud section and find "credentials", then select “Add"
+1. Navigate to Manage Jenkins > Configure System and then scroll down to the Cloud section and find "credentials", then select “Add" and select "Jenkins".
 
 ![add credential](./images/addCred.png)
 
@@ -96,33 +98,69 @@ In order for Jenkins to be able to launch pods for running jobs, you have to con
 
 ![kubernetes service account](./images/serviceAccount.png)
 
-After adding the credentials, select it by choosing "Secret text" from the dropdown menu of the credentials section. It should be called "secret text".
+After adding the credentials, select it by choosing "Secret text" from the dropdown menu of the credentials section.
 
 ![secret text](./images/secretText.png)
 
 3. Now we need to configure some container templates. These containers will be used to run our stages in the pipeline. The containers that we will be using are the following:
 
+- JNLP: This container is a Jenkins agent and will run some necessary tasks, such as checkout out code from our repo.
 - Maven: This container will be used to build the application and to run unit tests
 - Docker: This container is used for building the application container image and pushing it to a container registry
 - IBM Cloud developer tools: This container will be used for updating the app in our cluster with the new application container
 
-To configure the container templates, go to Manage Jenkins > Configure Jenkins and scroll down to the "cloud" section.
 
-4. Look for the *Container Template* section and click on the *Add container* button under the JNLP container and select *container template*
+4. From the "Cloud" section of the settings, scroll down and look for the *Container Template* section and click on the *advanced* button for the *JNLP* container template near the right side of the page. Here we are going to give the agent more resources so that it does not crash while running the pipeline.
+
+5. Edit the resource limits with the following values:
+
+|Field           |Value |
+|----------------|------|
+|Request CPU     |500m  |
+|Request Memory  |512Mi |
+|Limit CPU       |500m  |
+|Limit Memory    |512Mi |
+
+![jnlp template](./images/jnlpTemplate.png)
+
+
+4. Then, click on the *Add container* button under the JNLP container and select *container template*
 
 ![add container](./images/addContainer.png)
 
 5. Fill in the details for the Maven container as seen in the image below.
+```
+Name: maven
+Docker image: maven:latest
+Command to run: cat
+Arguments to pass: 
+```
 
 ![Maven container template](./images/mavenTemplate.png)
 
 6. Add a new container template again and fill in the details for the Docker container template as seen below. Be sure to click on "Advanced" and select "Run in privilaged mode".
 
+```
+Name: build
+Docker image: docker:stable-dind
+Command to run:
+Arguments to pass:
+```
+
 ![docker container template](./images/dockerTemplate.png)
 
 7. Add one more container template and fill in the details for the IBM Cloud container template as seen below. 
+```
+Name: ibmcloud
+Docker Image: ibmcom/ibm-cloud-developer-tools-amd64:latest
+Command to run: cat
+Arguments to pass: 
+
+```
 
 ![ibmcloud template](./images/ibmcloudTemplate.png)
+
+8. Click **Save** at the bottom of the page
 
 8. Now lastly, we need to add an IBM Cloud API Key to your Jenkins credentials so that we can deploy to your kubernetes cluster. Click on **credentials** on the navigation menu on the left side of the page and then click on **system** right under it.
 
@@ -197,8 +235,14 @@ Default Value: (The name of the cluster given to you)
 Then, add another string parameter and enter the following information
 
 ```
-Name: REGISTRY_NAMESPACE
+Name: REGISTRY_NS
 Default Value: (The registry namespace given to you)
+```
+
+Add another string parameter and enter the following
+```
+Name: USER
+Default value: (The user given to you)
 ```
 
 And finally, add one last string parameter and enter the following information
@@ -213,7 +257,7 @@ Default Value: (The region given to you)
 
 ### Step 3: Manually trigger a build to test pipeline
 
-1. In Jenkins in the navigation area on the left click on **Build with Parameters**. Accept the defaults of the parameters and click on **Build**
+1. In Jenkins in the navigation area on the left, click on **Build with Parameters**. Accept the defaults of the parameters and click on **Build**
 
 2. To see the console output click on the build number in the **Build History** and then click on **Console Output**
 
@@ -223,7 +267,7 @@ Default Value: (The region given to you)
 
 ![End of console output](images/ss5.png)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The Stage View of the pipeline should look like the following:
+The Stage View of the pipeline should look like the following:
 ![Stage view](images/stages.png)
 
 ### Step 4: Trigger a build via a commit to Github
@@ -264,7 +308,7 @@ This will show the price of the Bonsai Tree as being reduced even more
 
 12. Verify that your pipeline  starts building.
 
-13. When the pipeline is finish deploying, launch the app to verify the change you made.
+13. When the pipeline is finished deploying, launch the app to verify the change you made.
 
 14.Run the following command to get the port number of your deployed app
 
