@@ -321,7 +321,7 @@ This will show the price of the Bonsai Tree as being reduced even more
    >If you don't have the $USERNAME environment variable in the command set, replace $USERNAME with your lab user id.
 
    ```bash
-   ibmcloud cs workers $USERNAME-cluster | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
+   ibmcloud cs workers $CLUSTER_NAME | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1
    ```
 
 16. Your app's URL is the IP address of the first worker node with the port number of the deployed app. For example if your external IP is 169.61.73.182 and the port is 30961 the URL will be ```http://169.61.73.182:30961```
